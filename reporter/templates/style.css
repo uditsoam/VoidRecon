@@ -1,0 +1,370 @@
+/* VoidRecon — Professional Report Stylesheet */
+/* Author: Udit Soam */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    --void-dark    : #0A0F1E;
+    --void-navy    : #0D2137;
+    --void-steel   : #1A3F6F;
+    --void-accent  : #00B4D8;
+    --void-green   : #00D166;
+    --void-red     : #FF4757;
+    --void-yellow  : #FFD32A;
+    --void-white   : #F0F4F8;
+    --void-gray    : #8899AA;
+    --void-border  : #1E3A5F;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family     : 'Inter', sans-serif;
+    background      : #F8FAFC;
+    color           : #1A2332;
+    font-size       : 13px;
+    line-height     : 1.6;
+}
+
+/* ── COVER PAGE ─────────────────────────────────── */
+.cover {
+    background      : var(--void-dark);
+    min-height      : 100vh;
+    display         : flex;
+    flex-direction  : column;
+    justify-content : center;
+    align-items     : center;
+    padding         : 60px 40px;
+    page-break-after: always;
+    position        : relative;
+    overflow        : hidden;
+}
+
+.cover::before {
+    content    : '';
+    position   : absolute;
+    top        : 0; left: 0;
+    right      : 0; bottom: 0;
+    background : repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 40px,
+        rgba(0,180,216,0.03) 40px,
+        rgba(0,180,216,0.03) 41px
+    );
+}
+
+.cover-badge {
+    background      : rgba(0,180,216,0.15);
+    border          : 1px solid var(--void-accent);
+    color           : var(--void-accent);
+    padding         : 6px 20px;
+    border-radius   : 20px;
+    font-size       : 11px;
+    letter-spacing  : 3px;
+    text-transform  : uppercase;
+    margin-bottom   : 30px;
+}
+
+.cover-title {
+    font-size       : 72px;
+    font-weight     : 700;
+    color           : #FFFFFF;
+    letter-spacing  : -2px;
+    margin-bottom   : 10px;
+    text-align      : center;
+}
+
+.cover-accent {
+    color           : var(--void-accent);
+}
+
+.cover-subtitle {
+    color           : #8899AA;
+    font-size       : 15px;
+    text-align      : center;
+    margin-bottom   : 50px;
+    font-style      : italic;
+}
+
+.cover-divider {
+    width           : 80px;
+    height          : 3px;
+    background      : var(--void-accent);
+    margin          : 30px auto;
+    border-radius   : 2px;
+}
+
+.cover-meta {
+    display         : grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap             : 20px;
+    width           : 100%;
+    max-width       : 700px;
+    margin-top      : 40px;
+}
+
+.cover-meta-item {
+    background      : rgba(255,255,255,0.04);
+    border          : 1px solid rgba(0,180,216,0.2);
+    border-radius   : 10px;
+    padding         : 16px;
+    text-align      : center;
+}
+
+.cover-meta-label {
+    color           : #8899AA;
+    font-size       : 10px;
+    text-transform  : uppercase;
+    letter-spacing  : 1px;
+    margin-bottom   : 6px;
+}
+
+.cover-meta-value {
+    color           : #FFFFFF;
+    font-size       : 13px;
+    font-weight     : 600;
+}
+
+.cover-target-box {
+    background      : rgba(0,180,216,0.1);
+    border          : 1px solid var(--void-accent);
+    border-radius   : 12px;
+    padding         : 20px 40px;
+    margin          : 30px 0;
+    text-align      : center;
+}
+
+.cover-target-label {
+    color           : var(--void-accent);
+    font-size       : 11px;
+    letter-spacing  : 2px;
+    text-transform  : uppercase;
+}
+
+.cover-target-value {
+    color           : #FFFFFF;
+    font-size       : 24px;
+    font-weight     : 700;
+    font-family     : 'JetBrains Mono', monospace;
+    margin-top      : 6px;
+}
+
+/* ── PAGE LAYOUT ────────────────────────────────── */
+.page {
+    padding         : 40px 50px;
+    max-width       : 900px;
+    margin          : 0 auto;
+}
+
+/* ── SECTION HEADING ────────────────────────────── */
+.section-head {
+    display         : flex;
+    align-items     : center;
+    gap             : 12px;
+    margin          : 35px 0 15px;
+    padding-bottom  : 10px;
+    border-bottom   : 2px solid var(--void-accent);
+}
+
+.section-num {
+    background      : var(--void-accent);
+    color           : var(--void-dark);
+    width           : 28px;
+    height          : 28px;
+    border-radius   : 6px;
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+    font-size       : 12px;
+    font-weight     : 700;
+    flex-shrink     : 0;
+}
+
+.section-title {
+    font-size       : 16px;
+    font-weight     : 700;
+    color           : var(--void-navy);
+    text-transform  : uppercase;
+    letter-spacing  : 1px;
+}
+
+/* ── SUMMARY STATS GRID ─────────────────────────── */
+.stats-grid {
+    display         : grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap             : 12px;
+    margin          : 20px 0;
+}
+
+.stat-card {
+    background      : var(--void-dark);
+    border-radius   : 10px;
+    padding         : 16px;
+    text-align      : center;
+    border          : 1px solid var(--void-border);
+}
+
+.stat-number {
+    font-size       : 28px;
+    font-weight     : 700;
+    color           : var(--void-accent);
+    font-family     : 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+    font-size       : 10px;
+    color           : #8899AA;
+    text-transform  : uppercase;
+    letter-spacing  : 1px;
+    margin-top      : 4px;
+}
+
+.stat-card.danger  .stat-number { color: var(--void-red); }
+.stat-card.warning .stat-number { color: var(--void-yellow); }
+.stat-card.success .stat-number { color: var(--void-green); }
+
+/* ── TABLES ─────────────────────────────────────── */
+table {
+    width           : 100%;
+    border-collapse : collapse;
+    margin          : 15px 0;
+    font-size       : 12px;
+}
+
+thead th {
+    background      : var(--void-navy);
+    color           : #FFFFFF;
+    padding         : 10px 14px;
+    text-align      : left;
+    font-size       : 11px;
+    font-weight     : 600;
+    text-transform  : uppercase;
+    letter-spacing  : 0.5px;
+}
+
+tbody tr:nth-child(even) { background: #F0F4F8; }
+tbody tr:nth-child(odd)  { background: #FFFFFF; }
+tbody tr:hover           { background: #E8F4FD; }
+
+tbody td {
+    padding         : 9px 14px;
+    border-bottom   : 1px solid #E0E8F0;
+    vertical-align  : top;
+}
+
+/* ── BADGES ─────────────────────────────────────── */
+.badge {
+    display         : inline-block;
+    padding         : 2px 10px;
+    border-radius   : 12px;
+    font-size       : 10px;
+    font-weight     : 600;
+    text-transform  : uppercase;
+    letter-spacing  : 0.5px;
+}
+
+.badge-high    { background: #FFE0E0; color: #C0392B; }
+.badge-medium  { background: #FFF3CD; color: #856404; }
+.badge-low     { background: #D4EDDA; color: #155724; }
+.badge-info    { background: #D1ECF1; color: #0C5460; }
+.badge-juicy   { background: #FFE0E0; color: #C0392B; }
+.badge-ok      { background: #D4EDDA; color: #155724; }
+.badge-missing { background: #FFE0E0; color: #C0392B; }
+
+/* ── CODE BLOCKS ────────────────────────────────── */
+.code-block {
+    background      : var(--void-dark);
+    color           : #7FC9CE;
+    font-family     : 'JetBrains Mono', monospace;
+    font-size       : 11px;
+    padding         : 16px 20px;
+    border-radius   : 8px;
+    border-left     : 3px solid var(--void-accent);
+    margin          : 12px 0;
+    white-space     : pre-wrap;
+    word-break      : break-all;
+}
+
+/* ── INFO BOX ───────────────────────────────────── */
+.info-box {
+    background      : #EBF8FF;
+    border-left     : 4px solid var(--void-accent);
+    padding         : 14px 18px;
+    border-radius   : 0 8px 8px 0;
+    margin          : 15px 0;
+    font-size       : 12px;
+    color           : #1A3A5C;
+}
+
+.warn-box {
+    background      : #FFFBEB;
+    border-left     : 4px solid var(--void-yellow);
+    padding         : 14px 18px;
+    border-radius   : 0 8px 8px 0;
+    margin          : 15px 0;
+    font-size       : 12px;
+    color           : #5C4A00;
+}
+
+.danger-box {
+    background      : #FFF0F0;
+    border-left     : 4px solid var(--void-red);
+    padding         : 14px 18px;
+    border-radius   : 0 8px 8px 0;
+    margin          : 15px 0;
+    font-size       : 12px;
+    color           : #5C0000;
+}
+
+/* ── SECURITY GRADE ─────────────────────────────── */
+.grade-box {
+    display         : inline-flex;
+    align-items     : center;
+    justify-content : center;
+    width           : 60px;
+    height          : 60px;
+    border-radius   : 12px;
+    font-size       : 28px;
+    font-weight     : 700;
+}
+
+.grade-A { background: #D4EDDA; color: #155724; }
+.grade-B { background: #D1ECF1; color: #0C5460; }
+.grade-C { background: #FFF3CD; color: #856404; }
+.grade-D { background: #FFE5D0; color: #7B3300; }
+.grade-F { background: #FFE0E0; color: #C0392B; }
+
+/* ── FOOTER ─────────────────────────────────────── */
+.report-footer {
+    margin-top      : 40px;
+    padding-top     : 20px;
+    border-top      : 1px solid #E0E8F0;
+    display         : flex;
+    justify-content : space-between;
+    font-size       : 11px;
+    color           : #8899AA;
+}
+
+/* ── PAGE BREAK ─────────────────────────────────── */
+.page-break { page-break-before: always; }
+
+/* ── LIST ITEMS ─────────────────────────────────── */
+.item-list {
+    list-style      : none;
+    margin          : 10px 0;
+}
+
+.item-list li {
+    padding         : 6px 0;
+    border-bottom   : 1px solid #F0F4F8;
+    font-family     : 'JetBrains Mono', monospace;
+    font-size       : 12px;
+    color           : #1A2332;
+}
+
+.item-list li::before {
+    content         : "▸ ";
+    color           : var(--void-accent);
+    font-weight     : 700;
+}
