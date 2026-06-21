@@ -69,20 +69,24 @@ def render_html(data, template_dir):
         template = env.get_template("report.html")
 
         html = template.render(
-            domain      = data["meta"]["domain"],
-            author      = data["meta"]["author"],
-            scan_date   = data["meta"]["timestamp"],
-            summary     = data["summary"],
-            subdomains  = data.get("subdomains", []),
-            emails      = data.get("emails", []),
-            open_ports  = data.get("open_ports", []),
-            web_paths   = data.get("web_paths", []),
-            http_headers= data.get("http_headers", {}),
-            dns_records = data.get("dns_records", {}),
-            whois       = data.get("whois", {}),
-            ssl_certs   = data.get("ssl_certs", []),
-            shodan      = data.get("shodan", []),
-            screenshots = data.get("screenshots", []),
+            domain          = data["meta"]["domain"],
+            author          = data["meta"]["author"],
+            scan_date       = data["meta"]["timestamp"],
+            summary         = data["summary"],
+            subdomains      = data.get("subdomains", []),
+            emails          = data.get("emails", []),
+            open_ports      = data.get("open_ports", []),
+            web_paths       = data.get("web_paths", []),
+            http_headers    = data.get("http_headers", {}),
+            dns_records     = data.get("dns_records", {}),
+            whois           = data.get("whois", {}),
+            ssl_certs       = data.get("ssl_certs", []),
+            shodan          = data.get("shodan", []),
+            screenshots     = data.get("screenshots", []),
+            tech_stack      = data.get("tech_stack", {}),
+            github_findings = data.get("github_findings", []),
+            risk_analysis   = data.get("risk_analysis", {}),
+            dorks           = data.get("dorks", []),
         )
         log_success("HTML rendered successfully")
         return html

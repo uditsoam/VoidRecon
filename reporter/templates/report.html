@@ -1,68 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>VoidRecon Report — {{ domain }}</title>
-  <style>
-    {% include 'style.css' %}
-  </style>
+<meta charset="UTF-8"/>
+<title>VoidRecon Report — {{ domain }}</title>
+<style>{% include 'style.css' %}</style>
 </head>
 <body>
 
-<!-- ══ COVER PAGE ══════════════════════════════════════ -->
+<!-- ══ PAGE 1: COVER ════════════════════════════════════════ -->
+<div class="page">
 <div class="cover">
-  <div class="cover-badge">Confidential — Authorized Use Only</div>
-  <div class="cover-title">Void<span class="cover-accent">Recon</span></div>
-  <div class="cover-subtitle">Automated Red Team Reconnaissance Report</div>
+  <div class="cover-grid"></div>
+  <div class="cover-corner tl"></div>
+  <div class="cover-corner tr"></div>
+  <div class="cover-corner bl"></div>
+  <div class="cover-corner br"></div>
+
+  <div class="cover-badge">Penetration Test Reconnaissance Report</div>
+
+  <div class="cover-logo">Void<span>Recon</span></div>
+  <div class="cover-tagline">Automated Red Team Reconnaissance Framework v2.0</div>
   <div class="cover-divider"></div>
 
-  <div class="cover-target-box">
+  <div class="cover-target">
     <div class="cover-target-label">Target</div>
     <div class="cover-target-value">{{ domain }}</div>
   </div>
 
-  <div class="cover-meta">
+  <div class="cover-meta-grid">
     <div class="cover-meta-item">
       <div class="cover-meta-label">Prepared By</div>
       <div class="cover-meta-value">{{ author }}</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Scan Date</div>
-      <div class="cover-meta-value">{{ scan_date }}</div>
+      <div class="cover-meta-value">{{ scan_date[:10] }}</div>
     </div>
     <div class="cover-meta-item">
-      <div class="cover-meta-label">Tool Version</div>
-      <div class="cover-meta-value">VoidRecon v1.0</div>
+      <div class="cover-meta-label">Classification</div>
+      <div class="cover-meta-value">CONFIDENTIAL</div>
     </div>
   </div>
+
+  <div class="cover-classify">CONFIDENTIAL — AUTHORIZED USE ONLY</div>
+</div>
 </div>
 
-<!-- ══ PAGE 2 — EXECUTIVE SUMMARY ══════════════════════ -->
+<!-- ══ PAGE 2: EXECUTIVE SUMMARY ════════════════════════════ -->
 <div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">{{ domain }} | {{ scan_date[:10] }}</div>
+</div>
+<div class="page-inner">
 
   <div class="section-head">
     <div class="section-num">01</div>
     <div class="section-title">Executive Summary</div>
   </div>
 
-  <div class="info-box">
-    VoidRecon performed a full passive and active reconnaissance scan against
-    <strong>{{ domain }}</strong> on {{ scan_date }}.
-    The scan identified {{ summary.total_subdomains }} subdomains,
-    {{ summary.total_open_ports }} open ports, and
-    {{ summary.total_web_paths }} web paths.
-    Security header grade: <strong>{{ summary.security_grade }}</strong>.
+  <div class="alert alert-info">
+    VoidRecon performed an automated reconnaissance scan against
+    <strong>{{ domain }}</strong> on {{ scan_date[:10] }}.
+    The scan identified <strong>{{ summary.total_subdomains }}</strong> subdomains,
+    <strong>{{ summary.total_open_ports }}</strong> open ports, and
+    <strong>{{ summary.total_web_paths }}</strong> web paths.
+    {% if summary.risk_score is defined %}
+    Overall risk score: <strong>{{ summary.risk_score }}/100</strong>
+    (Grade: <strong>{{ summary.risk_grade }}</strong>).
+    {% endif %}
   </div>
+
+  <!-- Risk Badge -->
+  {% if summary.risk_grade is defined %}
+  <div class="risk-badge">
+    <div class="risk-circle grade-{{ summary.risk_grade }}">
+      <div class="risk-grade">{{ summary.risk_grade }}</div>
+      <div class="risk-score-text">{{ summary.risk_score }}/100</div>
+    </div>
+    <div class="risk-info">
+      <div class="risk-title">
+        {% if summary.risk_grade == 'A' %}Low Risk
+        {% elif summary.risk_grade == 'B' %}Guarded
+        {% elif summary.risk_grade == 'C' %}Elevated Risk
+        {% elif summary.risk_grade == 'D' %}High Risk
+        {% else %}Critical Risk{% endif %}
+      </div>
+      <div class="risk-subtitle">
+        {{ summary.missing_headers }} missing security headers ·
+        {{ summary.high_risk_ports }} high-risk ports ·
+        {{ summary.juicy_paths }} sensitive paths
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-number">{{ summary.total_subdomains }}</div>
       <div class="stat-label">Subdomains</div>
-    </div>
-    <div class="stat-card {% if summary.total_open_ports > 0 %}warning{% endif %}">
-      <div class="stat-number">{{ summary.total_open_ports }}</div>
-      <div class="stat-label">Open Ports</div>
     </div>
     <div class="stat-card {% if summary.high_risk_ports > 0 %}danger{% endif %}">
       <div class="stat-number">{{ summary.high_risk_ports }}</div>
@@ -76,71 +113,87 @@
       <div class="stat-number">{{ summary.total_emails }}</div>
       <div class="stat-label">Emails Found</div>
     </div>
+    <div class="stat-card {% if summary.cves_detected %}danger{% endif %}">
+      <div class="stat-number">{{ summary.cves_detected | length if summary.cves_detected else 0 }}</div>
+      <div class="stat-label">CVEs Detected</div>
+    </div>
     <div class="stat-card">
       <div class="stat-number">{{ summary.total_certs }}</div>
       <div class="stat-label">SSL Certs</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-number">{{ summary.shodan_results }}</div>
-      <div class="stat-label">Shodan Results</div>
+    <div class="stat-card {% if summary.takeover_vulns > 0 %}danger{% endif %}">
+      <div class="stat-number">{{ summary.takeover_vulns if summary.takeover_vulns else 0 }}</div>
+      <div class="stat-label">Takeover Vulns</div>
     </div>
-    <div class="stat-card {% if summary.security_grade in ['D','F'] %}danger
-         {% elif summary.security_grade == 'C' %}warning
-         {% else %}success{% endif %}">
-      <div class="stat-number">{{ summary.security_grade }}</div>
-      <div class="stat-label">Security Grade</div>
+    <div class="stat-card {% if summary.github_secrets > 0 %}danger{% endif %}">
+      <div class="stat-number">{{ summary.github_secrets if summary.github_secrets else 0 }}</div>
+      <div class="stat-label">GitHub Secrets</div>
     </div>
   </div>
 
+  <!-- Critical findings -->
   {% if summary.cves_detected %}
-  <div class="danger-box">
-    <strong>⚠ CVEs Detected:</strong> {{ summary.cves_detected | join(', ') }}
+  <div class="alert alert-danger">
+    <strong>⚠ CVEs Detected:</strong>
+    {{ summary.cves_detected | join(', ') }}
   </div>
   {% endif %}
 
-  <!-- ── SECTION 2: SUBDOMAINS ── -->
+  {% if summary.takeover_vulns and summary.takeover_vulns > 0 %}
+  <div class="alert alert-danger">
+    <strong>⚠ Subdomain Takeover:</strong>
+    {{ summary.takeover_vulns }} subdomain(s) vulnerable to takeover
+  </div>
+  {% endif %}
+
+  {% if summary.github_secrets and summary.github_secrets > 0 %}
+  <div class="alert alert-danger">
+    <strong>⚠ GitHub Secrets:</strong>
+    {{ summary.github_secrets }} potential secret(s) found in GitHub repositories
+  </div>
+  {% endif %}
+
+</div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }}</div>
+</div>
+</div>
+
+<!-- ══ PAGE 3: ATTACK SURFACE ═══════════════════════════════ -->
+<div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">Attack Surface Map</div>
+</div>
+<div class="page-inner">
+
+  <!-- Subdomains -->
   <div class="section-head">
     <div class="section-num">02</div>
-    <div class="section-title">Subdomain Enumeration</div>
+    <div class="section-title">Subdomain Enumeration ({{ subdomains | length }})</div>
   </div>
 
   {% if subdomains %}
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Subdomain</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sub in subdomains %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td><code>{{ sub }}</code></td>
-        <td><span class="badge badge-info">Discovered</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <ul class="domain-list">
+    {% for sub in subdomains %}
+    <li>{{ sub }}</li>
+    {% endfor %}
+  </ul>
   {% else %}
-  <div class="info-box">No subdomains discovered.</div>
+  <div class="alert alert-info">No subdomains discovered.</div>
   {% endif %}
 
-  <!-- ── SECTION 3: EMAILS ── -->
+  <!-- Emails -->
   <div class="section-head">
     <div class="section-num">03</div>
-    <div class="section-title">OSINT — Email & Host Intelligence</div>
+    <div class="section-title">Email Intelligence ({{ emails | length }})</div>
   </div>
 
   {% if emails %}
-  <p style="margin-bottom:10px;color:#4A6080;font-size:12px;">
-    The following email addresses were discovered via OSINT sources.
-    These can be used for targeted phishing simulation testing.
-  </p>
   <table>
     <thead>
-      <tr><th>#</th><th>Email Address</th><th>Risk</th></tr>
+      <tr><th>#</th><th>Email Address</th><th>Risk</th><th>Breach Status</th></tr>
     </thead>
     <tbody>
       {% for email in emails %}
@@ -148,35 +201,64 @@
         <td>{{ loop.index }}</td>
         <td><code>{{ email }}</code></td>
         <td><span class="badge badge-medium">Phishing Vector</span></td>
+        <td><span class="badge badge-info">Check HIBP</span></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% else %}
-  <div class="info-box">No emails discovered via OSINT.</div>
+  <div class="alert alert-info">No emails discovered via OSINT.</div>
+  {% endif %}
+
+  <!-- DNS Records -->
+  <div class="section-head">
+    <div class="section-num">04</div>
+    <div class="section-title">DNS Records</div>
+  </div>
+
+  {% if dns_records %}
+  <table>
+    <thead><tr><th>Type</th><th>Value</th></tr></thead>
+    <tbody>
+      {% for rtype, values in dns_records.items() %}
+        {% for val in values %}
+        <tr>
+          <td><span class="badge badge-info">{{ rtype }}</span></td>
+          <td><code>{{ val }}</code></td>
+        </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">No DNS records found.</div>
   {% endif %}
 
 </div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }}</div>
+</div>
+</div>
 
-<!-- ══ PAGE 3 — PORTS & WEB PATHS ══════════════════════ -->
+<!-- ══ PAGE 4: VULNERABILITY FINDINGS ═══════════════════════ -->
 <div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">Vulnerability Findings</div>
+</div>
+<div class="page-inner">
 
-  <!-- ── SECTION 4: OPEN PORTS ── -->
+  <!-- Open Ports -->
   <div class="section-head">
-    <div class="section-num">04</div>
-    <div class="section-title">Open Ports & Services</div>
+    <div class="section-num">05</div>
+    <div class="section-title">Open Ports & Services ({{ open_ports | length }})</div>
   </div>
 
   {% if open_ports %}
   <table>
     <thead>
-      <tr>
-        <th>Port</th>
-        <th>Protocol</th>
-        <th>Service</th>
-        <th>Version</th>
-        <th>Risk</th>
-      </tr>
+      <tr><th>Port</th><th>Protocol</th><th>Service</th><th>Version</th><th>Risk</th></tr>
     </thead>
     <tbody>
       {% for port in open_ports %}
@@ -186,36 +268,29 @@
         <td>{{ port.service }}</td>
         <td><code>{{ port.version if port.version else 'Unknown' }}</code></td>
         <td>
-          <span class="badge badge-{{ port.risk | lower }}">
-            {{ port.risk }}
-          </span>
+          <span class="badge badge-{{ port.risk | lower }}">{{ port.risk }}</span>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% else %}
-  <div class="info-box">No open ports discovered or scan not run.</div>
+  <div class="alert alert-info">No open ports found or module not run.</div>
   {% endif %}
 
-  <!-- ── SECTION 5: WEB PATHS ── -->
+  <!-- Web Paths -->
   <div class="section-head">
-    <div class="section-num">05</div>
-    <div class="section-title">Web Directory Discovery</div>
+    <div class="section-num">06</div>
+    <div class="section-title">Web Directory Discovery ({{ web_paths | length }})</div>
   </div>
 
   {% if web_paths %}
   <table>
     <thead>
-      <tr>
-        <th>Path</th>
-        <th>Status</th>
-        <th>Tool</th>
-        <th>Flag</th>
-      </tr>
+      <tr><th>Path</th><th>Status</th><th>Tool</th><th>Flag</th></tr>
     </thead>
     <tbody>
-      {% for path in web_paths %}
+      {% for path in web_paths[:40] %}
       <tr>
         <td><code>{{ path.path }}</code></td>
         <td>{{ path.status }}</td>
@@ -232,24 +307,22 @@
     </tbody>
   </table>
   {% else %}
-  <div class="info-box">No web paths discovered or scan not run.</div>
+  <div class="alert alert-info">No web paths found or module not run.</div>
   {% endif %}
 
-  <!-- ── SECTION 6: HTTP HEADERS ── -->
+  <!-- HTTP Security Headers -->
   <div class="section-head">
-    <div class="section-num">06</div>
+    <div class="section-num">07</div>
     <div class="section-title">HTTP Security Header Analysis</div>
   </div>
 
-  <div style="display:flex;align-items:center;gap:20px;margin:15px 0;">
-    <div class="grade-box grade-{{ summary.security_grade }}">
-      {{ summary.security_grade }}
+  <div class="risk-badge" style="margin-bottom:12px;">
+    <div class="risk-circle grade-{{ summary.security_grade }}">
+      <div class="risk-grade">{{ summary.security_grade }}</div>
     </div>
-    <div>
-      <div style="font-size:14px;font-weight:600;color:#1A2332;">
-        Security Grade: {{ summary.security_grade }}
-      </div>
-      <div style="font-size:12px;color:#4A6080;">
+    <div class="risk-info">
+      <div class="risk-title">Security Grade: {{ summary.security_grade }}</div>
+      <div class="risk-subtitle">
         {{ summary.missing_headers }} security headers missing
       </div>
     </div>
@@ -257,13 +330,8 @@
 
   {% set missing = http_headers.get('missing_security', []) %}
   {% if missing %}
-  <div class="warn-box">
-    <strong>Missing Security Headers:</strong>
-  </div>
   <table>
-    <thead>
-      <tr><th>Missing Header</th><th>Security Impact</th></tr>
-    </thead>
+    <thead><tr><th>Missing Header</th><th>Security Impact</th></tr></thead>
     <tbody>
       {% for h in missing %}
       <tr>
@@ -277,7 +345,7 @@
 
   {% set leaked = http_headers.get('info_leaked', {}) %}
   {% if leaked %}
-  <div class="warn-box">
+  <div class="alert alert-warning">
     <strong>Server Information Disclosed:</strong>
     {% for k, v in leaked.items() %}
     <br><code>{{ k }}: {{ v }}</code>
@@ -286,66 +354,24 @@
   {% endif %}
 
 </div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }}</div>
+</div>
+</div>
 
-<!-- ══ PAGE 4 — DNS, SSL, SHODAN ═══════════════════════ -->
+<!-- ══ PAGE 5: INTELLIGENCE FINDINGS ════════════════════════ -->
 <div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">Intelligence Findings</div>
+</div>
+<div class="page-inner">
 
-  <!-- ── SECTION 7: DNS RECORDS ── -->
-  <div class="section-head">
-    <div class="section-num">07</div>
-    <div class="section-title">DNS Records</div>
-  </div>
-
-  {% if dns_records %}
-  <table>
-    <thead>
-      <tr><th>Record Type</th><th>Value</th></tr>
-    </thead>
-    <tbody>
-      {% for rtype, values in dns_records.items() %}
-        {% for val in values %}
-        <tr>
-          <td><span class="badge badge-info">{{ rtype }}</span></td>
-          <td><code>{{ val }}</code></td>
-        </tr>
-        {% endfor %}
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="info-box">No DNS records found.</div>
-  {% endif %}
-
-  <!-- ── SECTION 8: SSL CERTIFICATES ── -->
+  <!-- Shodan -->
   <div class="section-head">
     <div class="section-num">08</div>
-    <div class="section-title">SSL Certificate History</div>
-  </div>
-
-  {% if ssl_certs %}
-  <table>
-    <thead>
-      <tr><th>#</th><th>Domain</th><th>Issuer</th><th>Valid Until</th></tr>
-    </thead>
-    <tbody>
-      {% for cert in ssl_certs[:20] %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td><code>{{ cert.domain }}</code></td>
-        <td style="font-size:11px;">{{ cert.issuer[:50] if cert.issuer else 'Unknown' }}</td>
-        <td style="font-size:11px;">{{ cert.not_after[:10] if cert.not_after else 'N/A' }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="info-box">No SSL certificate data found.</div>
-  {% endif %}
-
-  <!-- ── SECTION 9: SHODAN ── -->
-  <div class="section-head">
-    <div class="section-num">09</div>
-    <div class="section-title">Shodan Intelligence</div>
+    <div class="section-title">Shodan Intelligence ({{ shodan | length }} results)</div>
   </div>
 
   {% if shodan %}
@@ -358,11 +384,11 @@
       <tr>
         <td><code>{{ host.ip }}</code></td>
         <td>{{ host.port }}</td>
-        <td style="font-size:11px;">{{ host.org }}</td>
-        <td style="font-size:11px;">{{ host.product if host.product else 'Unknown' }}</td>
+        <td>{{ host.org }}</td>
+        <td>{{ host.product if host.product else 'Unknown' }}</td>
         <td>
           {% if host.cves %}
-          <span class="badge badge-high">{{ host.cves | length }} CVE(s)</span>
+          <span class="badge badge-critical">{{ host.cves | length }} CVE(s)</span>
           {% else %}
           <span class="badge badge-ok">Clean</span>
           {% endif %}
@@ -372,40 +398,240 @@
     </tbody>
   </table>
   {% else %}
-  <div class="info-box">No Shodan results or API key not configured.</div>
+  <div class="alert alert-info">No Shodan results or API key not configured.</div>
   {% endif %}
 
-  <!-- ── SECTION 10: WHOIS ── -->
+  <!-- SSL Certs -->
+  <div class="section-head">
+    <div class="section-num">09</div>
+    <div class="section-title">SSL Certificate History ({{ ssl_certs | length }})</div>
+  </div>
+
+  {% if ssl_certs %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Domain</th><th>Issuer</th><th>Valid Until</th></tr>
+    </thead>
+    <tbody>
+      {% for cert in ssl_certs[:15] %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><code>{{ cert.domain[:50] }}</code></td>
+        <td style="font-size:10px;">{{ cert.issuer[:40] if cert.issuer else 'Unknown' }}</td>
+        <td>{{ cert.not_after[:10] if cert.not_after else 'N/A' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">No SSL certificate data found.</div>
+  {% endif %}
+
+  <!-- Tech Stack -->
+  {% if tech_stack and tech_stack.cms %}
   <div class="section-head">
     <div class="section-num">10</div>
+    <div class="section-title">Technology Stack</div>
+  </div>
+  <table>
+    <thead><tr><th>Category</th><th>Detected</th></tr></thead>
+    <tbody>
+      {% if tech_stack.server %}
+      <tr><td>Server</td><td><code>{{ tech_stack.server }}</code></td></tr>
+      {% endif %}
+      {% if tech_stack.cms %}
+      <tr><td>CMS</td><td>{{ tech_stack.cms | join(', ') }}</td></tr>
+      {% endif %}
+      {% if tech_stack.cdn %}
+      <tr><td>CDN</td><td>{{ tech_stack.cdn | join(', ') }}</td></tr>
+      {% endif %}
+      {% if tech_stack.js_libraries %}
+      <tr><td>JS Libraries</td><td>{{ tech_stack.js_libraries | join(', ') }}</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <!-- GitHub Findings -->
+  {% if github_findings %}
+  <div class="section-head">
+    <div class="section-num">11</div>
+    <div class="section-title">GitHub Secret Findings ({{ github_findings | length }})</div>
+  </div>
+  <div class="alert alert-danger">
+    <strong>⚠ Potential secrets found in public GitHub repositories</strong>
+  </div>
+  <table>
+    <thead><tr><th>Category</th><th>Repository</th><th>File</th></tr></thead>
+    <tbody>
+      {% for f in github_findings[:10] %}
+      <tr>
+        <td><span class="badge badge-critical">{{ f.category }}</span></td>
+        <td><code>{{ f.repo }}</code></td>
+        <td style="font-size:10px;">{{ f.file_path }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+</div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }}</div>
+</div>
+</div>
+
+<!-- ══ PAGE 6: RISK ANALYSIS ════════════════════════════════ -->
+<div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">Risk Analysis & Recommendations</div>
+</div>
+<div class="page-inner">
+
+  <div class="section-head">
+    <div class="section-num">12</div>
+    <div class="section-title">Risk Score Breakdown</div>
+  </div>
+
+  {% if risk_analysis and risk_analysis.deductions %}
+  <table>
+    <thead><tr><th>Finding</th><th>Points Deducted</th></tr></thead>
+    <tbody>
+      {% for d in risk_analysis.deductions %}
+      <tr>
+        <td>{{ d.reason }}</td>
+        <td><span class="badge badge-critical">{{ d.points }}</span></td>
+      </tr>
+      {% endfor %}
+      <tr style="background:#F0F4F8;">
+        <td><strong>Final Risk Score</strong></td>
+        <td><strong>{{ summary.risk_score }}/100 — Grade {{ summary.risk_grade }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-success">No significant risk deductions — target appears well-secured.</div>
+  {% endif %}
+
+  <!-- Recommendations -->
+  <div class="section-head">
+    <div class="section-num">13</div>
+    <div class="section-title">Prioritized Recommendations</div>
+  </div>
+
+  {% if risk_analysis and risk_analysis.recommendations %}
+    {% for rec in risk_analysis.recommendations %}
+    <div class="rec-card">
+      <div class="rec-header">
+        <span class="badge badge-{{ rec.priority | lower }}">{{ rec.priority }}</span>
+        <strong style="font-size:12px;">{{ rec.finding }}</strong>
+      </div>
+      <div class="rec-body">
+        <div class="rec-row">
+          <div class="rec-label">Impact</div>
+          <div class="rec-value">{{ rec.impact }}</div>
+        </div>
+        <div class="rec-row">
+          <div class="rec-label">Fix</div>
+          <div class="rec-value">{{ rec.fix }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="alert alert-success">No critical recommendations — maintain current security posture.</div>
+  {% endif %}
+
+</div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }}</div>
+</div>
+</div>
+
+<!-- ══ PAGE 7: APPENDIX ══════════════════════════════════════ -->
+<div class="page page-break">
+<div class="page-header">
+  <div class="page-header-left">Void<span>Recon</span></div>
+  <div class="page-header-right">Appendix</div>
+</div>
+<div class="page-inner">
+
+  <!-- Whois -->
+  <div class="section-head">
+    <div class="section-num">14</div>
     <div class="section-title">Whois Information</div>
   </div>
 
   {% if whois %}
-  <table>
-    <thead>
-      <tr><th>Field</th><th>Value</th></tr>
-    </thead>
+  <table class="summary-kv">
     <tbody>
       {% for key, val in whois.items() %}
       <tr>
-        <td><strong>{{ key }}</strong></td>
+        <td>{{ key }}</td>
         <td>{{ val }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% else %}
-  <div class="info-box">No Whois data found.</div>
+  <div class="alert alert-info">No Whois data available.</div>
   {% endif %}
 
-  <!-- ── FOOTER ── -->
-  <div class="report-footer">
-    <span>VoidRecon v1.0 — github.com/uditsoam/VoidRecon</span>
-    <span>{{ domain }} — {{ scan_date }}</span>
-    <span>Author: Udit Soam</span>
+  <!-- Google Dorks -->
+  {% if dorks %}
+  <div class="section-head">
+    <div class="section-num">15</div>
+    <div class="section-title">Generated Google Dorks ({{ dorks | length }})</div>
+  </div>
+  <div class="alert alert-warning">
+    Use these dorks in Google to find publicly indexed sensitive data.
+  </div>
+  <div class="code-block">{% for dork in dorks[:30] %}{{ dork }}
+{% endfor %}</div>
+  {% endif %}
+
+  <!-- Scan Metadata -->
+  <div class="section-head">
+    <div class="section-num">16</div>
+    <div class="section-title">Scan Metadata</div>
+  </div>
+
+  <table class="summary-kv">
+    <tbody>
+      <tr><td>Tool</td><td>VoidRecon v2.0</td></tr>
+      <tr><td>Author</td><td>{{ author }}</td></tr>
+      <tr><td>GitHub</td><td>github.com/uditsoam/VoidRecon</td></tr>
+      <tr><td>Target</td><td>{{ domain }}</td></tr>
+      <tr><td>Scan Date</td><td>{{ scan_date }}</td></tr>
+      <tr><td>Report Version</td><td>1.0</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Disclaimer -->
+  <div class="section-head">
+    <div class="section-num">17</div>
+    <div class="section-title">Legal Disclaimer</div>
+  </div>
+
+  <div class="alert alert-warning">
+    This report was generated by VoidRecon for authorized security
+    testing purposes only. All findings are based on automated
+    reconnaissance and may contain false positives. Manual
+    verification is recommended before taking remediation action.
+    Unauthorized use of this tool against systems without explicit
+    written permission is illegal and unethical. The author assumes
+    no liability for misuse of this tool or report.
   </div>
 
 </div>
+<div class="page-footer">
+  <div class="page-footer-left">VoidRecon v2.0 | github.com/uditsoam/VoidRecon</div>
+  <div class="page-footer-right">CONFIDENTIAL | {{ domain }} | End of Report</div>
+</div>
+</div>
+
 </body>
 </html>
